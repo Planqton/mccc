@@ -9,7 +9,7 @@ local COLOR_STATE = colors.blue   -- Tür-status: blau = offen
 local PULSE_TIME = 0.3     -- wie lang der Puls dauert
 
 -- Monitor-Seite (oder nil, wenn kein Monitor verwendet wird)
-local MONITOR_SIDE = "right"   -- z.B. "right", "left", "top", ...
+local MONITOR_SIDE = "top"   -- z.B. "right", "left", "top", ...
 
 ------------------------------
 --   PERIPHERIE / MONITOR
@@ -161,25 +161,36 @@ local function mainTerminalLoop()
 end
 
 ------------------------------
---   MONITOR-FIXTEXT (statt Laufschrift)
+--   MONITOR-LAUFSCHRIFT
 ------------------------------
 
 local function monitorLoop()
     if not mon then
-        while true do sleep(5) end
+        -- Kein Monitor vorhanden -> einfach nix tun
+        while true do
+            sleep(5)
+        end
     end
 
     while true do
-        mon.clear()
         local w, h = mon.getSize()
 
         local tag = os.day()
         local zeit = textutils.formatTime(os.time(), true)
+        local text = "  Welcome  -  Tag " .. tag .. "  -  " .. zeit .. "  "
 
-        mon.setCursorPos(1, math.floor(h/2))
-        mon.write("Welcome - Tag " .. tag .. " - " .. zeit)
+        -- ein bisschen Puffer dazu, damit die Laufschrift sauber rausläuft
+        local padded = text .. string.rep(" ", w)
 
-        sleep(1)   -- Uhrzeit aktualisieren
+        for offset = 1, #padded do
+            mon.clear()
+            mon.setCursorPos(1, math.floor(h/2))
+
+            local view = string.sub(padded, offset, offset + w - 1)
+            mon.write(view)
+
+            sleep(0.2)
+        end
     end
 end
 
