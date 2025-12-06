@@ -9,7 +9,7 @@ local COLOR_STATE = colors.blue   -- Tür-status: blau = offen
 local PULSE_TIME = 0.3     -- wie lang der Puls dauert
 
 -- Monitor-Seite (oder nil, wenn kein Monitor verwendet wird)
-local MONITOR_SIDE = "top"   -- z.B. "right", "left", "top", ...
+local MONITOR_SIDE = "right"   -- z.B. "right", "left", "top", ...
 
 ------------------------------
 --   PERIPHERIE / MONITOR
@@ -199,3 +199,5 @@ end
 ------------------------------
 
 parallel.waitForAny(mainTerminalLoop, monitorLoop)
+
+mach mir das die schrift am monitor kein lauftext ist sondern fix
