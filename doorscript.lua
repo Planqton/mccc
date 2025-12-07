@@ -4,12 +4,12 @@
 local SIDE = "back"        -- Bundled-Kabel-Seite
 local COLOR_OPEN  = colors.orange
 local COLOR_CLOSE = colors.white
-local COLOR_STATE = colors.blue   -- Tür-status: blau = offen
+local COLOR_STATE = colors.blue   -- TÃ¼r-status: blau = offen
 
 local PULSE_TIME = 0.3     -- wie lang der Puls dauert
 
 -- Monitor-Seite (oder nil, wenn kein Monitor verwendet wird)
-local MONITOR_SIDE = "right"   -- z.B. "right", "left", "top", ...
+local MONITOR_SIDE = "top"   -- z.B. "right", "left", "top", ...
 
 ------------------------------
 --   PERIPHERIE / MONITOR
@@ -46,7 +46,7 @@ local function pulse(color)
     allOff()
 end
 
--- Türstatus einlesen (blau = offen)
+-- TÃ¼rstatus einlesen (blau = offen)
 local function doorIsOpen()
     local sig = redstone.getBundledInput(SIDE)
     return (bit.band(sig, COLOR_STATE) ~= 0)
@@ -56,7 +56,7 @@ end
 --   TERMINAL-ANZEIGE
 ------------------------------
 
-local options = { "Öffnen", "Schließen" }
+local options = { "Ãffnen", "SchlieÃen" }
 local selected = 1
 
 local function draw()
@@ -105,11 +105,11 @@ local function execute()
     local offen = doorIsOpen()
 
     if selected == 1 then
-        -- "Öffnen"
+        -- "Ãffnen"
         if offen then
             term.setCursorPos(1,14)
             term.setTextColor(colors.red)
-            print("Tuer ist offen – Oeffnen gesperrt!")
+            print("Tuer ist offen â Oeffnen gesperrt!")
             term.setTextColor(colors.white)
             sleep(1.5)
             return
@@ -118,11 +118,11 @@ local function execute()
         pulse(COLOR_OPEN)
 
     elseif selected == 2 then
-        -- "Schließen"
+        -- "SchlieÃen"
         if not offen then
             term.setCursorPos(1,14)
             term.setTextColor(colors.red)
-            print("Tuer ist zu – Schliessen gesperrt!")
+            print("Tuer ist zu â Schliessen gesperrt!")
             term.setTextColor(colors.white)
             sleep(1.5)
             return
@@ -161,36 +161,25 @@ local function mainTerminalLoop()
 end
 
 ------------------------------
---   MONITOR-LAUFSCHRIFT
+--   MONITOR-FIXTEXT (statt Laufschrift)
 ------------------------------
 
 local function monitorLoop()
     if not mon then
-        -- Kein Monitor vorhanden -> einfach nix tun
-        while true do
-            sleep(5)
-        end
+        while true do sleep(5) end
     end
 
     while true do
+        mon.clear()
         local w, h = mon.getSize()
 
         local tag = os.day()
         local zeit = textutils.formatTime(os.time(), true)
-        local text = "  Welcome  -  Tag " .. tag .. "  -  " .. zeit .. "  "
 
-        -- ein bisschen Puffer dazu, damit die Laufschrift sauber rausläuft
-        local padded = text .. string.rep(" ", w)
+        mon.setCursorPos(1, math.floor(h/2))
+        mon.write("Welcome - Tag " .. tag .. " - " .. zeit)
 
-        for offset = 1, #padded do
-            mon.clear()
-            mon.setCursorPos(1, math.floor(h/2))
-
-            local view = string.sub(padded, offset, offset + w - 1)
-            mon.write(view)
-
-            sleep(0.2)
-        end
+        sleep(1)   -- Uhrzeit aktualisieren
     end
 end
 
@@ -199,5 +188,3 @@ end
 ------------------------------
 
 parallel.waitForAny(mainTerminalLoop, monitorLoop)
-
-mach mir das die schrift am monitor kein lauftext ist sondern fix
